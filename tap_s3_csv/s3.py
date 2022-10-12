@@ -54,10 +54,10 @@ def setup_aws_client(config: Dict) -> None:
     LOGGER.info("Attempting to create AWS session")
 
     # Get the required parameters from config file and/or environment variables
-    aws_access_key_id = config.get('aws_access_key_id') or os.environ.get('AWS_ACCESS_KEY_ID')
-    aws_secret_access_key = config.get('aws_secret_access_key') or os.environ.get('AWS_SECRET_ACCESS_KEY')
-    aws_session_token = config.get('aws_session_token') or os.environ.get('AWS_SESSION_TOKEN')
-    aws_profile = config.get('aws_profile') or os.environ.get('AWS_PROFILE')
+    aws_access_key_id = config.get('aws_access_key_id')
+    aws_secret_access_key = config.get('aws_secret_access_key')
+    aws_session_token = config.get('aws_session_token')
+    aws_profile = config.get('aws_profile')
 
     # AWS credentials based authentication
     if aws_access_key_id and aws_secret_access_key:

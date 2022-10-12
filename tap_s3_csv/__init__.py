@@ -84,12 +84,7 @@ def main() -> None:
     # Reassign the config tables to the validated object
     config['tables'] = CONFIG_CONTRACT(config.get('tables', {}))
 
-    try:
-        for _ in s3.list_files_in_bucket(config['bucket']):
-            break
-        LOGGER.warning("I have direct access to the bucket without assuming the configured role.")
-    except Exception:
-        s3.setup_aws_client(config)
+    s3.setup_aws_client(config)
 
     if args.discover:
         do_discover(args.config)
