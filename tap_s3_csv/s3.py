@@ -3,12 +3,13 @@ Modules containing all AWS S3 related features
 """
 from __future__ import division
 
-import os
+from datetime import datetime, timedelta, timezone
 import itertools
 import more_itertools
 import re
 import backoff
 import boto3
+
 
 from typing import Dict, Generator, Optional, Iterator
 from botocore.exceptions import ClientError
@@ -80,7 +81,9 @@ def get_sampled_schema_for_table(config: Dict, table_spec: Dict) -> Dict:
     """
     LOGGER.info('Sampling records to determine table schema.')
 
-    modified_since = utils.strptime_with_tz(config['start_date'])
+    modified_since = min(datetime.now(timezone.utc) - timedelta(days=365), 
+                         utils.strptime_with_tz(config['start_date']))
+    
     s3_files_gen = get_input_files_for_table(config, table_spec, modified_since)
 
     samples = list(sample_files(config, table_spec, s3_files_gen))
