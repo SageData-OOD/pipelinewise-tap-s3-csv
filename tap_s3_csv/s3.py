@@ -81,7 +81,7 @@ def get_sampled_schema_for_table(config: Dict, table_spec: Dict) -> Dict:
     """
     LOGGER.info('Sampling records to determine table schema.')
 
-    modified_since = min(datetime.now(timezone.utc) - timedelta(days=365), 
+    modified_since = min(datetime.now(timezone.utc) - timedelta(days=3650), 
                          utils.strptime_with_tz(config['start_date']))
     
     s3_files_gen = get_input_files_for_table(config, table_spec, modified_since)
