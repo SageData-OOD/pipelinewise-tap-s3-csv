@@ -89,6 +89,8 @@ def sync_table_file(config: Dict, s3_path: str, table_spec: Dict, stream: Dict) 
             s3.SDC_SOURCE_LINENO_COLUMN: records_synced + 2
         }
         rec = {**row, **custom_columns}
+        # Replace spaces in keys with underscores
+        rec = {k.replace(" ", "_"): v for k, v in rec.items()}
 
         with Transformer() as transformer:
             to_write = transformer.transform(rec, stream['schema'], metadata.to_map(stream['metadata']))

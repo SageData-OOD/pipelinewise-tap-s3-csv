@@ -30,6 +30,9 @@ def generate_schema(samples: List[Dict], table_spec: Dict) -> Dict:
 
     for header, header_type in zip(headers, types):
 
+        # Replace spaces with underscores
+        header = header.replace(' ', '_')
+
         date_overrides = set(table_spec.get('date_overrides', []))
 
         if header in date_overrides:
