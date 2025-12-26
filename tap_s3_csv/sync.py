@@ -9,7 +9,7 @@ from typing import Dict
 from singer import metadata, Transformer, utils, get_bookmark, write_bookmark, write_state, write_record, get_logger
 from singer_encodings.csv import get_row_iterator # pylint:disable=no-name-in-module
 
-from tap_s3_csv import s3
+from tap_s3_csv import s3, conversion
 
 LOGGER = get_logger('tap_s3_csv')
 
@@ -91,6 +91,9 @@ def sync_table_file(config: Dict, s3_path: str, table_spec: Dict, stream: Dict) 
         rec = {**row, **custom_columns}
         # Replace spaces in keys with underscores
         rec = {k.replace(" ", "_"): v for k, v in rec.items()}
+        
+        # Convert string values to match schema types and handle decimal strings for integer fields
+        rec = conversion.convert_record_to_schema_types(rec, stream['schema'])
 
         with Transformer() as transformer:
             to_write = transformer.transform(rec, stream['schema'], metadata.to_map(stream['metadata']))
