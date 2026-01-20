@@ -164,7 +164,8 @@ def sample_file(config: Dict, table_spec: Dict, s3_path: str, sample_rate: int) 
 
 # pylint: disable=too-many-arguments
 def sample_files(config: Dict, table_spec: Dict, s3_files: Generator,
-                 sample_rate: int = 5, max_records: int = 1000, max_files: int = 5) -> Generator:
+                 sample_rate: int = 5, max_records: int = 1000, max_files: int = 5,
+                 max_file_size_mb: int = 50) -> Generator:
     """
     Get samples from all files
     :param config:
@@ -173,10 +174,17 @@ def sample_files(config: Dict, table_spec: Dict, s3_files: Generator,
     :param sample_rate:
     :param max_records:
     :param max_files:
+    :param max_file_size_mb: Maximum file size in MB to sample (default 50MB)
     :returns: Generator containing all samples as dicts
     """
-    LOGGER.info("Sampling files (max files: %s)", max_files)
+    LOGGER.info("Sampling files (max files: %s, max file size: %s MB)", max_files, max_file_size_mb)
     for s3_file in more_itertools.tail(max_files, s3_files):
+        file_size_mb = s3_file['size'] / (1024 * 1024)
+        if file_size_mb > max_file_size_mb:
+            LOGGER.info('Skipping large file %s (%.2f MB > %s MB limit)',
+                        s3_file['key'], file_size_mb, max_file_size_mb)
+            continue
+
         LOGGER.info('Sampling %s (max records: %s, sample rate: %s)',
                     s3_file['key'],
                     max_records,
@@ -226,7 +234,7 @@ def get_input_files_for_table(config: Dict, table_spec: Dict, modified_since: st
                 LOGGER.info('Will download key "%s" as it was last modified %s',
                             key,
                             last_modified)
-                yield {'key': key, 'last_modified': last_modified}
+                yield {'key': key, 'last_modified': last_modified, 'size': s3_object['Size']}
         else:
             unmatched_files_count += 1
 
