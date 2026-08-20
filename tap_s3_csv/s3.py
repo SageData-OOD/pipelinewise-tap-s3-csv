@@ -24,6 +24,9 @@ SDC_SOURCE_BUCKET_COLUMN = "_sdc_source_bucket"
 SDC_SOURCE_FILE_COLUMN = "_sdc_source_file"
 SDC_SOURCE_LINENO_COLUMN = "_sdc_source_lineno"
 
+# AWS S3 max object size is 5 TB. Sampling compares against binary MB (MiB).
+S3_MAX_OBJECT_SIZE_MB = 5 * 1024 * 1024
+
 
 def retry_pattern():
     """
@@ -165,7 +168,7 @@ def sample_file(config: Dict, table_spec: Dict, s3_path: str, sample_rate: int) 
 # pylint: disable=too-many-arguments
 def sample_files(config: Dict, table_spec: Dict, s3_files: Generator,
                  sample_rate: int = 5, max_records: int = 1000, max_files: int = 5,
-                 max_file_size_mb: int = 50) -> Generator:
+                 max_file_size_mb: int = S3_MAX_OBJECT_SIZE_MB) -> Generator:
     """
     Get samples from all files
     :param config:
@@ -174,7 +177,7 @@ def sample_files(config: Dict, table_spec: Dict, s3_files: Generator,
     :param sample_rate:
     :param max_records:
     :param max_files:
-    :param max_file_size_mb: Maximum file size in MB to sample (default 50MB)
+    :param max_file_size_mb: Maximum file size in MB to sample (default: S3 max object size, 5 TB)
     :returns: Generator containing all samples as dicts
     """
     LOGGER.info("Sampling files (max files: %s, max file size: %s MB)", max_files, max_file_size_mb)
